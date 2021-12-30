@@ -1,0 +1,151 @@
+Sub VBA_Challenge()
+    
+    'I need to loop through the stock listings and output:
+        '1) The ticker symbol
+        '2) The yearly change from opening price at 01/01/xx to closing price at 12/31/xx
+        '3) The percent change from opening price at 01/01/xx to closing price at 12/31/xx
+        '4) The total stock volume
+            
+            
+    '1) To collect the ticker symbol, I need to loop through all the rows and collect the value in column A once, into a variable.
+        'After collection, the symbol/variable value needs to be printed to the worksheet, starting in cell I2
+        'Then continue going through column A until the symbol changes and then repeat the process
+                
+    '2) To find the yearly change, I need to first find the 01/01/xx date for the first ticker symbol.
+        'Once I find January 1st, I collect the opening price at that date
+        'Then I need to find the 12/31/xx date and collect the closing price at that date.
+        'I will put each respective value into variables, and then calculate the yearly change with them
+            'The yearly change is the closing price less the opening price
+            'Once calculated, this value needs to be printed to the worksheet, starting in cell J2
+            
+    '3) To find the percent change, I simply need to create a variable that equals the yearly change divided by the opening price
+        'After calculating this, the value needs to be printed to the worksheet, starting in cell K2
+        
+    '4) To find the total stock volume, I need to sum all the values in column G per each ticker symbol
+        'This value needs to be printed to the worksheet, starting in cell L2
+
+'------------------------------------------------------------------------------------------------------------------------------------
+'-----------------------------------------------------------------------------------------------------------
+    
+    'Create variable to hold ticker symbol
+    Dim TickerSymbol As String
+    
+    'Create variables for the opening and closing prices
+    Dim OpeningPrice As Double
+    OpeningPrice = 0
+    
+    Dim ClosingPrice As Double
+    ClosingPrice = 0
+    
+    'Create variable for yearly change
+    Dim YearlyChange As Double
+    
+    'Create variable for total stock volume
+    Dim TotalSV As LongLong
+    TotalSV = 0
+    
+    'Create variable for ticker symbol summary table
+    Dim TSRow As Integer
+    
+    'Create variables for the "greatest" summary
+    'Dim GPIncrease As Double
+    'Dim GPDecrease As Double
+    'Dim GTVolume As LongLong
+       
+    
+    'Establish for loop per worksheet
+    For Each ws In Worksheets
+    
+        'Determine the last row of the worksheet
+        FinalRow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+        'MsgBox FinalRow
+        
+        'Print Headers
+        ws.Range("J1").Value = "Ticker Symbol"
+        ws.Range("K1").Value = "Yearly Change"
+        ws.Range("L1").Value = "Percent Change"
+        ws.Range("M1").Value = "Total Stock Volume"
+        ws.Range("O2").Value = "Greatest % Increase"
+        ws.Range("O3").Value = "Greatest % Decrease"
+        ws.Range("O4").Value = "Greatest Total Volume"
+        ws.Range("P1").Value = "Ticker"
+        ws.Range("Q1").Value = "Value"
+        ws.Range("J:Q").Columns.AutoFit
+                
+        
+        'Set TSRow variable to 2 each ws
+        TSRow = 2
+        
+        'Begin loop through the worksheet
+        For i = 2 To FinalRow
+            
+            'Check if the previous TS value is different
+            If ws.Cells(i - 1, 1).Value <> ws.Cells(i, 1).Value Then
+                    
+                'Collect the opening price
+                OpeningPrice = ws.Cells(i, 3).Value
+                'MsgBox OpeningPrice
+                       
+            'Check if the next TS value is different
+            ElseIf ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+                
+                'Set ticker symbol variable
+                TickerSymbol = ws.Cells(i, 1).Value
+                
+                'Print ticker symbol header & values
+                ws.Range("J" & TSRow).Value = TickerSymbol
+                
+                'Add to the total stock volume
+                TotalSV = TotalSV + ws.Cells(i, 7).Value
+                    
+                'Collect closing price at December 30th
+                ClosingPrice = ws.Cells(i, 6).Value
+            
+                'Print yearly change values
+                YearlyChange = ClosingPrice - OpeningPrice
+                ws.Range("K" & TSRow).Value = YearlyChange
+                ws.Range("K" & TSRow).NumberFormat = General
+                
+                'Print percent change values
+                'Check if division is possible (non-zero number)
+                If OpeningPrice > 0 Then
+                    ws.Range("L" & TSRow).Value = YearlyChange / OpeningPrice
+                    ws.Range("L" & TSRow).NumberFormat = "0.00%"
+                'If not divisible (zero in denomenator)
+                Else
+                    ws.Range("L" & TSRow).Value = "0.00%"
+                End If
+                
+                
+                'Conditional color formatting
+                If YearlyChange > 0 Then
+                    ws.Range("K" & TSRow).Interior.ColorIndex = 4
+                End If
+                                
+                'Print the total stock volume values
+                ws.Range("M" & TSRow).Value = TotalSV
+                          
+                'Add one to the summary table row
+                TSRow = TSRow + 1
+             
+                'Reset the opening and closing prices
+                OpeningPrice = 0
+                ClosingPrice = 0
+                TotalSV = 0
+                                              
+            'If the cell immediately following a row is the same TS
+            Else
+            
+                'Add to the total stock volume
+                TotalSV = TotalSV + ws.Cells(i, 7).Value
+                
+            End If
+        
+            'ws.Range("Q2").Value = WorksheetFunction.Max(1, 2)
+        
+        Next i
+        
+    Next ws
+    
+End Sub
+
