@@ -1,0 +1,86 @@
+'This code will create the values for the "Greatest" summary table
+'Per stock per year, it will produce the greatest % increase, the greatest % decrease, and the greatest total volume
+
+Sub GreatestSummary()
+
+For Each ws In Worksheets
+    
+    'Create variable for the final row
+    FinalRow = ws.Cells(Rows.Count, 12).End(xlUp).Row
+    'MsgBox (WorksheetName & ": " & FinalRow)
+    
+    'Create variable for greatest percent increase and decrease
+    Dim GreatestIncrease As Double
+    Dim GreatestDecrease As Double
+    
+    'Create variable for greatest total volume (it's a very long number)
+    Dim GreatestVolume As LongLong
+    
+    'Create variable for the ticker symbol (TS)
+    Dim TS_Increase As String
+    Dim TS_Decrease As String
+    Dim TS_Volume As String
+    
+    'Create loop to check data
+    For i = 2 To FinalRow
+    
+        'First, find the stock with greatest percent increase
+        '----------------------------------------------------
+        
+        'If the previous cell was less than the current cell
+        If ws.Cells(i - 1, 12).Value < ws.Cells(i, 12).Value Then
+            
+            'Set the GPI variable to current cell value
+            GreatestIncrease = ws.Cells(i, 12).Value
+            
+            'Collect ticker symbol
+            TS_Increase = ws.Cells(i, 10).Value
+            
+        End If
+        
+        
+        'Second, find the stock with greatest percent decrease
+        '-----------------------------------------------------
+        
+        'If the previous cell was more than the current cell
+        If ws.Cells(i - 1, 12).Value > ws.Cells(i, 12).Value Then
+        
+            'Set the GPD variable to current cell value
+            GreatestDecrease = ws.Cells(i, 12).Value
+            
+            'Collect ticker symbol
+            TS_Decrease = ws.Cells(i, 10).Value
+            
+        End If
+        
+        
+        'Third, find the stock with the greatest total volume
+        '----------------------------------------------------
+        
+        'If the previous cell was less than the current cell
+        If ws.Cells(i - 1, 13).Value < ws.Cells(i, 13).Value Then
+            
+            'Set the GTSV variable to current cell value
+            GreatestVolume = ws.Cells(i, 13).Value
+            
+            'Collect ticker symbol
+            TS_Volume = ws.Cells(i, 10).Value
+        
+        End If
+        
+        'Print collected values
+        ws.Range("P2").Value = TS_Increase
+        ws.Range("Q2").Value = GreatestIncrease
+        ws.Range("P3").Value = TS_Decrease
+        ws.Range("Q3").Value = GreatestDecrease
+        ws.Range("P4").Value = TS_Volume
+        ws.Range("Q4").Value = GreatestVolume
+        
+    End If
+    
+Next ws
+
+MsgBox ("Subroutine Complete!")
+
+
+End Sub
